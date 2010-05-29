@@ -1,7 +1,7 @@
 <?php
 	defined('PUBWICH') or die('No direct access allowed.');
 
-	define( 'PUBWICH_VERSION', '1.3' );
+	define( 'PUBWICH_VERSION', '1.4' );
 
 	/**
 	 * @classname Pubwich
@@ -94,7 +94,7 @@
 			require( 'Cache/Lite.php' );
 
 			if ( !defined( 'PUBWICH_CRON' ) ) {
-				require_once( 'Savant/Savant3.php' );
+				require_once( 'Mustache.php/Mustache.php' );
 			}
 
 		}
@@ -136,9 +136,6 @@
 		 */
 		static public function renderTemplate() {
 
-			$tpl =& new Savant3();
-			$tpl->addPath( 'template', self::getThemePath() );
-
 			if ( !file_exists(self::getThemePath()."/index.tpl.php") ) {
 				throw new PubwichErreur( sprintf( Pubwich::_( 'The file <code>%s</code> was not found. It has to be there.' ), '/themes/'.PUBWICH_THEME.'/index.tpl.php' ) );
 			}
@@ -152,7 +149,7 @@
 				self::applyTheme();
 			}
 
-			$tpl->display('index.tpl.php');
+			include (self::getThemePath() . '/index.tpl.php' );
 		}
 
 		/**
@@ -263,7 +260,7 @@
 			if ( function_exists( 'boxTemplate' ) ) {
 				$boxTemplate = call_user_func( 'boxTemplate' );
 			} else {
-				throw new PubwichErreur( Pubwich::__('You must define a boxTemplate function in your theme\'s functions.php file.') );
+				throw new PubwichErreur( Pubwich::_('You must define a boxTemplate function in your theme\'s functions.php file.') );
 			}
 
 			foreach( self::$classes as $classe ) {
@@ -311,15 +308,31 @@
 		 * @return string
 		 */
 		static public function getLoop() {
-			$output = '';
-			foreach( self::$columns as $col => $classes ) {
-				$output .= '<div class="col'.$col.'">';
-				foreach( $classes as $classe ) {
-					$output .= $classe->renderBox();
-				}
-				$output .= '</div>';
+
+			$columnTemplate = function_exists( 'columnTemplate' ) ? call_user_func( 'columnTemplate' ) : '<div class="col{{{number}}}">{{{content}}}</div>';
+			$layoutTemplateDefined = false;
+
+			if ( function_exists( 'layoutTemplate' ) ) {
+				$layoutTemplate = call_user_func( 'layoutTemplate' );
+				$layoutTemplateDefined = true;
+			} else {
+				$layoutTemplate = '';
 			}
-			return $output;
+
+			$output_columns = array();
+			$m = new Mustache;
+			foreach( self::$columns as $col => $classes ) {
+				$boxes = '';
+				foreach( $classes as $classe ) {
+					$boxes .= $classe->renderBox();
+				}
+				$output_columns['col'.$col] = $m->render($columnTemplate, array('number'=>$col, 'content'=>$boxes));
+
+				if ( !$layoutTemplateDefined ) {
+					$layoutTemplate .= '{{{col'.$col.'}}} ';
+				}
+			}
+			return $m->render($layoutTemplate, $output_columns);
 		}
 
 		static public function getHeader() {

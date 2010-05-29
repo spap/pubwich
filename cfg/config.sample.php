@@ -94,10 +94,14 @@
 			array(
 				array( 'Twitter', 'etats', array(
 						'method' => 'TwitterUser',
-						'id' => 'TWITTER_USERID_HERE',
 						'username' => 'TWITTER_USERNAME_HERE',
-						'authenticate' => false, // set to true if you are on a shared hosting
-						'password' => 'TWITTER_PASSWORD_HERE', // enter your password only if `authenticate` is true
+						'oauth' => array(
+							// You have to create a new application at http://dev.twitter.com/apps to get these keys
+							'app_consumer_key' => '',
+							'app_consumer_secret' => '',
+							'user_access_token' => '',
+							'user_access_token_secret' => ''
+						),
 						'total' => 10,
 						'title' => 'Twitter',
 						'description' => 'latest statuses'
@@ -148,16 +152,6 @@
 						'total' => 9,
 						'size' => 50,
 						'title' => 'Readernaut',
-						'description' => 'latest books'
-					)
-                ),
-
-				array( 'Goodreads', 'livres', array(
-						'method' => 'GoodreadsBooks',
-						'username' => 'GOODREADS_USERID_HERE',
-						'total' => 9,
-						'size' => 50,
-						'title' => 'Goodreads',
 						'description' => 'latest books'
 					)
                 ),

@@ -4,9 +4,9 @@
 	/**
 	 * @classname LastFM
 	 * @description Fetch data from Last.fm
-	 * @version 1.1 (20090929)
+	 * @version 1.2 (20100526)
 	 * @author Rémi Prévost (exomel.com)
-	 * @methods LastFMWeeklyAlbums LastFMRecentTracks
+	 * @methods LastFMWeeklyAlbums LastFMRecentTracks LastFMTopAlbums
 	 */
 
 	class LastFM extends Service {
@@ -42,7 +42,7 @@
 			parent::setVariables( $config );
 
 			$this->setURL( sprintf( 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&api_key=%s&user=%s&limit=%d', $this->key, $this->username, $this->total ) );
-			$this->setItemTemplate('<li{%classe%}><a class="clearfix" href="{%link%}">{%artist%} — {%track%}</a></li>'."\n");
+			$this->setItemTemplate('<li{{{classe}}}><a class="clearfix" href="{{{link}}}">{{{artist}}} — {{{track}}}</a></li>'."\n");
 
 			parent::__construct( $config );
 		}
@@ -82,7 +82,7 @@
 
 			$this->setURL( sprintf( 'http://ws.audioscrobbler.com/2.0/?method=user.getweeklyalbumchart&api_key=%s&user=%s', $this->key, $this->username ) );
 			$this->classes = array( 'premier', 'deuxieme', 'troisieme', 'quatrieme' );
-			$this->setItemTemplate('<li{%classe%}><a class="clearfix" href="{%link%}"><img src="{%image%}" width="{%size%}" height="{%size%}" alt="{%title%}"><strong><span>{%artist%}</span> {%album%}</strong></a></li>'."\n");
+			$this->setItemTemplate('<li{{{classe}}}><a class="clearfix" href="{{{link}}}"><img src="{{{image}}}" width="{{{size}}}" height="{{{size}}}" alt="{{{title}}}"><strong><span>{{{artist}}}</span> {{{album}}}</strong></a></li>'."\n");
 
 			parent::__construct( $config );
 		}
@@ -208,4 +208,47 @@
 			return $this;
 		}
 
+	}
+
+	class LastFMTopAlbums extends LastFM {
+		public function __construct( $config ) {
+			parent::setVariables( $config );
+			$period = $config['period'] ? $config['period'] : 'overall';
+			$this->classes = array( 'premier', 'deuxieme', 'troisieme', 'quatrieme' );
+			$this->setURL( sprintf( 'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&api_key=%s&user=%s&period=%s', $this->key, $this->username, $period ) );
+			$this->setItemTemplate('<li{{{classe}}}><a class="clearfix" href="{{{link}}}"><img src="{{{image_medium}}}" width="{{{size}}}" height="{{{size}}}" alt="{{{title}}}"><strong><span>{{{artist}}}</span> {{{album}}}</strong></a></li>'."\n");
+			parent::__construct( $config );
+		}
+
+		/**
+		 * @return SimpleXMLElement
+		 */
+		public function getData() {
+			$data = parent::getData();
+			return $data->topalbums->album;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function populateItemTemplate( &$item ) {
+			$images = new StdClass;
+			foreach( $item->image as $k=>$i ) {
+				$key = (string) $i['size'];
+				$val = (string) $i;
+				$images->{$key} = $val;
+			}
+			return array(
+						'size' => $this->size,
+						'link' => $item->url,
+						'playcount' => $item->playcount,
+						'album' => $item->name,
+						'artist' => $item->artist->name,
+						'image_small' => $images->small,
+						'image_medium' => $images->medium,
+						'image_large' => $images->large,
+						'image_extralarge' => $images->extralarge,
+						'classe' => isset($this->classes[intval($item['rank'])-1]) ? ' class="'.$this->classes[intval($item['rank'])-1].'"' : '',
+						);
+		}
 	}
