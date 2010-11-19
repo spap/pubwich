@@ -81,6 +81,15 @@ These parameters can be used for all services:
 
 * `username` → The Delicious.com username.
 
+### Dribbble
+
+* `username` → The Dribbble username.
+* `method` → `DribbbleShots`.
+
+#### DribbbleShots
+
+*No specific parameters*
+
 ### Facebook
 
 * `id` → The Facebook user ID.
@@ -89,7 +98,7 @@ These parameters can be used for all services:
 
 ### Flickr
 
-* `row` → The number of photos per row. Pubwich adds the class `derniere` to each row’s last photo.
+* `row` → The number of photos per row. Pubwich adds the class `last-in-row` to each row’s last photo.
 * `sort` → The order in which to sort the photos. See [this page](http://www.flickr.com/services/api/flickr.photos.search.html) for all the possible values.
 * `key` → The Flickr API key.
 * `method` → Either `FlickrUser`, `FlickrGroup`, `FlickrTags`
@@ -109,19 +118,19 @@ These parameters can be used for all services:
 ### GitHub
 
 * `username` → The GitHub username
-* `method` → Either `GithubRecentActivity`, `GithubRepositories`
+* `method` → Either `GithubRecentActivity`, `GithubRepositories` and `GithubGists`
 
 #### GithubRecentActivity
 
-*No specific parameter*
+*No specific parameters*
 
 #### GithubRepositories
 
-*No specific parameter*
+*No specific parameters*
 
 #### GithubGists
 
-*No specific parameter*
+*No specific parameters*
 
 ### Goodreads
 
@@ -178,10 +187,45 @@ These parameters can be used for all services:
 
 *No specific parameters*
 
+### Reddit
+
+* `username` → The Readernaut username.
+* `key` → Your API key. Go to [this page](http://www.reddit.com/prefs/feeds/) and extract the key from one of the JSON feeds URL.
+* `method` → `RedditLiked`
+
+#### RedditLiked
+
+*No specific parameters*
+
 ### RSS
 
 * `url` → The feed URL.
 * `link` → The website URL.
+
+### SlideShare
+
+* `method` → Either `SlideShareUserSlideshows`
+* `key` → The SlideShare API key
+* `secret` → The SlideShare shared secret
+
+#### SlideShareUserSlideshows
+
+* `username` → The SlideShare username.
+
+### StatusNet
+
+* `method` → Either `StatusNetUser`, `StatusNetSearch`
+* `root` → The StatusNet root URL (default is `http://identi.ca`)
+* `username` → The StatusNet username.
+* `password` → The StatusNet password.
+
+#### StatusNetUser
+
+*No specific parameters*
+
+#### StatusNetSearch
+
+* `terms` → The search query.
 
 ### Text
 
@@ -269,7 +313,7 @@ The column template defines how each column is rendered. You don’t have to def
 Where `{{{number}}}` is replaced by the column number and `{{{content}}}` is replaced by the column content (the *boxes*). For instance, you could put this in your `functions.php` file:
 
     funtion columnTemplate() {
-        '<div class="column column-{{{number}}}"><div class="column-inner">{{{content}}}</div></div>'
+        '<div class="column column-{{{number}}}"><div class="column-inner">{{{content}}}</div></div>';
     }
 
 ### Layout templates
